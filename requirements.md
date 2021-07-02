@@ -16,9 +16,9 @@
 
 ## Itens importantes:
 
-    Estar no padrão REST
-    Criar mecanismo de busca por todos os campos do cadastro do médico, incluindo o endereço
-    Utilizar ferramenta de validação (exemplo: YUP)
+    Done - Estar no padrão REST
+    Done - Criar mecanismo de busca por todos os campos do cadastro do médico, incluindo o endereço
+    Done - Utilizar ferramenta de validação (exemplo: YUP)
     Funções especialistas (Realizam somente uma operação)
     Para documentação e requisição utilizar o Postman, Insomnia ou Swagger (Enviar junto com o teste o workspace utilizado)
     Subir o código em repositório público do GitHub
@@ -28,12 +28,10 @@
 
 ## Diferenciais
 
-    Estrutura e implementação autênticos
     Testes de integração
-    AWS (ECS, RDS)
-    Estruturação de banco de dados MySQL
-    Conhecimento em NoSQL
-    Metodologias ágeis
+    Done - AWS (ECS, RDS)
+    Done - Estruturação de banco de dados MySQL
+
 
 ## Ferramentas para serem utilizadas no desenvolvimento (Escolha entre as duas linguagens citadas abaixo)
 
@@ -43,3 +41,10 @@
     TypeScript
     Sequelize ou TypeORM
     Migrations e Seeds
+
+## To-Do
+
+Tratamento de erro nos gets
+Função de reativar médico
+testes unitarios
+Adicionar length correto

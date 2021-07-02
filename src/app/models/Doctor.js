@@ -19,7 +19,7 @@ class Doctor extends Model {
         uf: Sequelize.STRING,
         complemento: Sequelize.STRING,
         bairro: Sequelize.STRING,
-        
+
       },
       {
         sequelize,
@@ -31,12 +31,10 @@ class Doctor extends Model {
     return this;
   }
 
-  static associate(models){
-    Doctor.belongsTo(models.DoctorMedicalSpec, { foreignKey: 'crm', targetKey : 'doctor_crm'})
-    Doctor.belongsToMany(models.MedicalSpecialization, {through: 'doctor_medical_specialization' })
+  static associate(models) {
+    Doctor.belongsTo(models.DoctorMedicalSpec, { foreignKey: 'crm', targetKey: 'doctor_crm' });
+    Doctor.belongsToMany(models.MedicalSpecialization, { through: 'doctor_medical_specialization' });
   }
-
- 
 }
 
 export default Doctor;

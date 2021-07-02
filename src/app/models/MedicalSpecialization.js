@@ -20,11 +20,9 @@ class MedicalSpecialization extends Model {
     return this;
   }
 
-  static associate(models){
-  
-    MedicalSpecialization.belongsTo(models.DoctorMedicalSpec, { foreignKey: 'id', targetKey: 'medical_specialization_id'})
-    MedicalSpecialization.belongsToMany(models.Doctor, {through: 'doctor_medical_specialization' })
-    
+  static associate(models) {
+    MedicalSpecialization.belongsTo(models.DoctorMedicalSpec, { foreignKey: 'id', targetKey: 'medical_specialization_id' });
+    MedicalSpecialization.belongsToMany(models.Doctor, { through: 'doctor_medical_specialization' });
   }
 }
 
