@@ -245,9 +245,9 @@ class DoctorController {
   }
 
   async getByCity(req, res) {
-    const { cidade } = req.params;
+    const { localidade } = req.params;
     const result = await Doctor.findAll({
-      where: { localidade: cidade },
+      where: { localidade },
       include: {
         through: {
           attributes: [],
@@ -259,7 +259,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: `Não existe nenhum médico residente na cidade de ${cidade}`,
+        message: `Não existe nenhum médico residente na cidade de ${localidade}`,
       });
     }
     return res.status(200).json(result);
@@ -287,9 +287,9 @@ class DoctorController {
   }
 
   async getByPhone(req, res) {
-    const { telefoneFixo } = req.params;
+    const { telefone_fixo } = req.params;
     const result = await Doctor.findAll({
-      where: { telefone_fixo: telefoneFixo },
+      where: { telefone_fixo },
       include: {
         through: {
           attributes: [],
@@ -301,16 +301,16 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: `Não existe nenhum médico com o telefone ${telefoneFixo} em nossa base`,
+        message: `Não existe nenhum médico com o telefone ${telefone_fixo} em nossa base`,
       });
     }
     return res.status(200).json(result);
   }
 
   async getByCellPhone(req, res) {
-    const { telefoneCelular } = req.params;
+    const { telefone_celular } = req.params;
     const result = await Doctor.findAll({
-      where: { telefone_celular: telefoneCelular },
+      where: { telefone_celular },
       include: {
         through: {
           attributes: [],
@@ -322,7 +322,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: `Não existe nenhum médico com o telefone ${telefoneCelular} em nossa base`,
+        message: `Não existe nenhum médico com o telefone ${telefone_celular} cadastrado`,
       });
     }
     return res.status(200).json(result);
@@ -331,7 +331,7 @@ class DoctorController {
   async getByCEP(req, res) {
     const { CEP } = req.params;
     const result = await Doctor.findAll({
-      where: { cep: CEP },
+      where: { CEP },
       include: {
         through: {
           attributes: [],
@@ -343,7 +343,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: `Não foi encontrado nenhum médico cadastro com o CEP ${CEP}`,
+        message: `Não foi encontrado nenhum médico cadastrado com o CEP ${CEP}`,
       });
     }
     return res.status(200).json(result);
@@ -377,6 +377,32 @@ class DoctorController {
     // eslint-disable-next-line eqeqeq
 
     return res.status(200).json(result);
+  }
+
+  async reactivateDoctor(req, res) {
+    const { crm } = req.params;
+    const doctorExists = await Doctor.findOne({
+      where: { crm },
+      paranoid: false,
+    });
+
+    if (!doctorExists) {
+      return res.status(404).json({
+        message: `Não foi encontrado nenhum médico cadastrado com o CRM ${crm}`,
+      });
+    }
+    if (doctorExists.dataValues.deletedAt == null) {
+      return res.status(400).json({
+        message: `O CRM ${crm} já está ativo`,
+      });
+    }
+    await Doctor.restore({
+      where: { crm },
+    });
+
+    return res.status(200).json({
+      message: `O CRM ${crm} foi reativado`,
+    });
   }
 }
 
