@@ -45,6 +45,9 @@
 ## To-Do
 
 Tratamento de erro nos gets
+docker compose
+swagger
 Função de reativar médico
 testes unitarios
 Adicionar length correto
+refatorar estrutura e isolar responsabilidades de código

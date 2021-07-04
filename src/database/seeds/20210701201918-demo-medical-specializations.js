@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('medical_specialization', [
+  up: (queryInterface) => queryInterface.bulkInsert('medical_specialization', [
     {
       id: 1,
       especialidade: 'Alergologia',
@@ -57,5 +57,5 @@ module.exports = {
 
     },
   ]),
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('medical_specialization', null, {}),
+  down: (queryInterface) => queryInterface.bulkDelete('medical_specialization', null, {}),
 };

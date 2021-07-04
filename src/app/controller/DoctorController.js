@@ -38,6 +38,11 @@ class DoctorController {
     if (doctorExist) {
       return res.status(400).json({ error: 'Médico já existe no sistema' });
     }
+    if (doctorNotActive) {
+      return res.status(400).json({
+        message: 'Esse CRM foi desativado',
+      });
+    }
 
     const {
       crm, nome, cep, telefone_fixo, telefone_celular, especialidades,
@@ -50,19 +55,11 @@ class DoctorController {
         message: 'O CRM não pode conter mais que 7 caracteres',
       });
     }
-    if (doctorNotActive) {
-      return res.status(400).json({
-        message: 'Esse CRM foi desativado',
-      });
-    }
+
     const {
       logradouro, complemento, bairro, localidade, uf,
     } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
-    if (doctorExist && Doctor.deleted_at != null) {
-      return res.status(400).json({
-        message: 'Esse usuário foi desativado',
-      });
-    }
+
     await Doctor.create({
       crm, nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
     });
@@ -109,18 +106,17 @@ class DoctorController {
   }
 
   async update(req, res) {
-    const { crm } = req.params;
-    const crmDoctor = await Doctor.findByPk(crm);
-    const onDelete = await DoctorMedicalSpec.findAll({
-      where: { doctor_crm: crm },
-    });
-
     const schema = await Yup.object().shape({
       nome: Yup.string().required(),
       cep: Yup.number().required(),
       telefone_fixo: Yup.number().required(),
       telefone_celular: Yup.number().required(),
       especialidades: Yup.number().required(),
+    });
+    const { crm } = req.params;
+    const crmDoctor = await Doctor.findByPk(crm);
+    const onUpdate = await DoctorMedicalSpec.findAll({
+      where: { doctor_crm: crm },
     });
 
     if (!crmDoctor) {
@@ -146,8 +142,8 @@ class DoctorController {
     const {
       logradouro, complemento, bairro, localidade, uf,
     } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
-    for (let i = 0; i < onDelete.length; i++) {
-      await onDelete[i].destroy({ doctor_crm: null });
+    for (let i = 0; i < onUpdate.length; i++) {
+      await onUpdate[i].destroy();
     }
     await crmDoctor.update({
       nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
@@ -180,17 +176,9 @@ class DoctorController {
 
   async getByCRM(req, res) {
     const { crm } = req.params;
-    const doctorNotActive = await Doctor.findOne({
-      where: { crm },
-      paranoid: false,
-    });
-    if (doctorNotActive && doctorNotActive.dataValues.deletedAt != null) {
-      return res.status(400).json({
-        message: 'Esse CRM foi desativado',
-      });
-    }
     const result = await Doctor.findOne({
       where: { crm },
+      paranoid: false,
       include: {
         through: {
           attributes: [],
@@ -202,9 +190,15 @@ class DoctorController {
     });
     if (!result) {
       return res.status(404).json({
-        message: 'CRM não encontrado',
+        message: `O CRM ${crm} não foi encontrado`,
       });
     }
+    if (result.dataValues.deletedAt != null) {
+      return res.status(400).json({
+        message: `O CRM ${crm} foi desativado`,
+      });
+    }
+
     return res.status(200).json(result);
   }
 
@@ -223,7 +217,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Logradouro não encontrado',
+        message: `Não existe nenhum médico residente no logradouro ${logradouro}`,
       });
     }
     return res.status(200).json(result);
@@ -244,7 +238,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Bairro não encontrado',
+        message: `Não existe nenhum médico residente no bairro ${bairro}`,
       });
     }
     return res.status(200).json(result);
@@ -265,7 +259,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Cidade não encontrada',
+        message: `Não existe nenhum médico residente na cidade de ${cidade}`,
       });
     }
     return res.status(200).json(result);
@@ -286,7 +280,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Estado não encontrada',
+        message: `Não existe nenhum médico residente no estado de ${uf}`,
       });
     }
     return res.status(200).json(result);
@@ -307,7 +301,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Telefone fixo não encontrado',
+        message: `Não existe nenhum médico com o telefone ${telefoneFixo} em nossa base`,
       });
     }
     return res.status(200).json(result);
@@ -328,7 +322,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'Telefone celular não encontrado',
+        message: `Não existe nenhum médico com o telefone ${telefoneCelular} em nossa base`,
       });
     }
     return res.status(200).json(result);
@@ -349,7 +343,7 @@ class DoctorController {
     });
     if (result == '') {
       return res.status(404).json({
-        message: 'CEP não encontrado',
+        message: `Não foi encontrado nenhum médico cadastro com o CEP ${CEP}`,
       });
     }
     return res.status(200).json(result);
@@ -370,12 +364,18 @@ class DoctorController {
 
       },
     });
-    // eslint-disable-next-line eqeqeq
     if (result == '') {
       return res.status(404).json({
         message: 'Especialidade não encontrada',
       });
     }
+    if (result[0].Doctors.length == 0) {
+      return res.status(400).json({
+        message: 'Não existe nenhum médico com essa especialidade em nossa base',
+      });
+    }
+    // eslint-disable-next-line eqeqeq
+
     return res.status(200).json(result);
   }
 }

@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface, Sequelize) => queryInterface.bulkInsert('doctor_medical_specialization', [
+  up: (queryInterface) => queryInterface.bulkInsert('doctor_medical_specialization', [
     {
       medical_specialization_id: 1,
       doctor_crm: 1234567,
@@ -9,5 +9,5 @@ module.exports = {
 
     },
   ]),
-  down: (queryInterface, Sequelize) => queryInterface.bulkDelete('doctor_medical_specialization', null, {}),
+  down: (queryInterface) => queryInterface.bulkDelete('doctor_medical_specialization', null, {}),
 };
