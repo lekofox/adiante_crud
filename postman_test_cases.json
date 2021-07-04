@@ -1,0 +1,799 @@
+{
+	"info": {
+		"_postman_id": "d5756f56-c279-4b5d-8c83-45ac07a3e38f",
+		"name": "Adiante's CRUD",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Criar médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 201 - Requisição OK - Usuário criado\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"pm.test(\"Status 400 - Requisição falhou - Você deve ter ao menos duas especialidades\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Você deve ter ao menos duas especialidades')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - Você deve informar todos os dados para criação\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Falha ao cadastrar médico; Por favor corrija os dados de cadastro')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - CRM do médico não pode ser maior que 7 caracteres\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('O CRM não pode conter mais que 7 caracteres')\r",
+							"});\r",
+							"pm.test(\"Status 400 - Requisição falhou - Você digitou um CRM já cadastrado\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Médico já existe no sistema')\r",
+							"});\r",
+							"pm.test(\"Status 400 - Requisição falhou - O CRM já foi desativado anteriormente, por favor use o método de reativação\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Esse CRM foi desativado')\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"crm\": \"1234578\",\r\n\t\"nome\":\"Neandro Lias\",\r\n\t\"cep\": \"06340340\", \r\n\t\"telefone_fixo\": 11932130457,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reativar médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Usuário reativado\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Nenhum médico foi encontrado com o CRM informado\", function () {\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.response.to.have.status(404)\r",
+							"    pm.expect(jsonData.message).to.eql(`Não foi encontrado nenhum médico cadastrado com o CRM informado`)\r",
+							"});\r",
+							"pm.test(\"Status 400 - Requisição falhou - O médico com o CRM informado já está ativo\", function () {\r",
+							"    pm.response.to.have.status(400)\r",
+							"\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql(`O CRM informado já está ativo`)\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/reativar/:crm",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"reativar",
+						":crm"
+					],
+					"query": [
+						{
+							"key": "crm",
+							"value": "518649",
+							"disabled": true
+						}
+					],
+					"variable": [
+						{
+							"key": "crm",
+							"value": "1234578"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Alterar dados do médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Dados alterados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - Você deve informar todos os dados para criação\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Falha na validação; Por favor corrija os dados para alteração')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - Você deve ter ao menos duas especialidades\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Você deve ter ao menos duas especialidades')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - CRM informado não existe no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Erro ao alterar os dados do médico; CRM selecionado não existe em nossa base')\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/:crm",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						":crm"
+					],
+					"variable": [
+						{
+							"key": "crm",
+							"value": "1234578\n"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deletar médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médico removido\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Status 404 - Requisição falhou - CRM informado não existe no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Erro ao remover; CRM selecionado não existe em nossa base')\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/:crm",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						":crm"
+					],
+					"variable": [
+						{
+							"key": "crm",
+							"value": "1234578"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por CRM",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - CRM encontrado\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - CRM informado não existe no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('O CRM informado não foi encontrado')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - CRM informado foi desativado anteriormente\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('O CRM informado foi desativado')\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/CRM/:crm",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"CRM",
+						":crm"
+					],
+					"variable": [
+						{
+							"key": "crm",
+							"value": "1234578"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por logradouro",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse logradouro no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico cadastrado no logradouro informado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/logradouro/:logradouro",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"logradouro",
+						":logradouro"
+					],
+					"variable": [
+						{
+							"key": "logradouro",
+							"value": "Rua Ricardo Félix"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por bairro",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse bairro no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico cadastrado no bairro informado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/bairro/:bairro",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"bairro",
+						":bairro"
+					],
+					"variable": [
+						{
+							"key": "bairro",
+							"value": "Jardim Vila Formosa"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por cidade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com essa cidade no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico cadastrado na cidade informada')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/cidade/:localidade",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"cidade",
+						":localidade"
+					],
+					"variable": [
+						{
+							"key": "localidade",
+							"value": "São Paulo"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por UF",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse UF no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico cadastrado no UF informado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/uf/:uf",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"uf",
+						":uf"
+					],
+					"variable": [
+						{
+							"key": "uf",
+							"value": "SP"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por telefone fixo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse telefone fixo no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico com o telefone informado cadastrado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/telefone/:telefone_fixo",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"telefone",
+						":telefone_fixo"
+					],
+					"variable": [
+						{
+							"key": "telefone_fixo",
+							"value": "123456789"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por telefone celular",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse telefone celular no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico com o telefone celular informado cadastrado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/celular/:telefone_celular",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"celular",
+						":telefone_celular"
+					],
+					"variable": [
+						{
+							"key": "telefone_celular",
+							"value": "11932130457"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por CEP",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Não existem médicos com esse CEP no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não foi encontrado nenhum médico cadastrado com o CEP informado')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/CEP/:cep",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"CEP",
+						":cep"
+					],
+					"variable": [
+						{
+							"key": "cep",
+							"value": "15432321"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consultar por especialidade",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médicos encontrados\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 404 - Requisição falhou - Especialidade informada não existe no banco de dados de especialidades\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Especialidade não encontrada')\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Status 400 - Requisição falhou - A especialidade foi encontrada mas não tem nenhum médico atrelada a ela\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Não existe nenhum médico com essa especialidade em nossa base')\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/especialidade/:especialidade",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						"especialidade",
+						":especialidade"
+					],
+					"variable": [
+						{
+							"key": "especialidade",
+							"value": "Alergologia"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
