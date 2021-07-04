@@ -1,17 +1,17 @@
 import { Sequelize } from 'sequelize';
 import database from './database';
-import DoctorMedicalSpec from '../app/models/DoctorMedicalSpec';
+import DoctorSpecialization from '../app/models/DoctorSpecialization';
 import Doctors from '../app/models/Doctor';
-import MedicalSpecialization from '../app/models/MedicalSpecialization';
+import Specialization from '../app/models/Specialization';
 
 const connection = new Sequelize(database);
 
-DoctorMedicalSpec.init(connection);
+DoctorSpecialization.init(connection);
 Doctors.init(connection);
-MedicalSpecialization.init(connection);
+Specialization.init(connection);
 
-DoctorMedicalSpec.associate(connection.models);
+DoctorSpecialization.associate(connection.models);
 Doctors.associate(connection.models);
-MedicalSpecialization.associate(connection.models);
+Specialization.associate(connection.models);
 
 export default connection;

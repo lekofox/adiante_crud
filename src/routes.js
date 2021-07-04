@@ -14,7 +14,7 @@ routes.get('/adiante-api/v1/medicos/uf/:uf', DoctorController.getByState);
 routes.get('/adiante-api/v1/medicos/telefone/:telefone_fixo', DoctorController.getByPhone);
 routes.get('/adiante-api/v1/medicos/celular/:telefone_celular', DoctorController.getByCellPhone);
 routes.get('/adiante-api/v1/medicos/CEP/:CEP', DoctorController.getByCEP);
-routes.get('/adiante-api/v1/medicos/especialidade/:especialidade', DoctorController.getByMedicalSpecialization);
+routes.get('/adiante-api/v1/medicos/especialidade/:especialidade', DoctorController.getBySpecialization);
 routes.put('/adiante-api/v1/medicos/:crm', DoctorController.update);
 routes.post('/adiante-api/v1/medicos/reativar/:crm', DoctorController.reactivateDoctor);
 

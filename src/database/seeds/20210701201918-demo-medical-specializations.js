@@ -1,5 +1,5 @@
 module.exports = {
-  up: (queryInterface) => queryInterface.bulkInsert('medical_specialization', [
+  up: (queryInterface) => queryInterface.bulkInsert('specialization', [
     {
       id: 1,
       especialidade: 'Alergologia',
@@ -57,5 +57,5 @@ module.exports = {
 
     },
   ]),
-  down: (queryInterface) => queryInterface.bulkDelete('medical_specialization', null, {}),
+  down: (queryInterface) => queryInterface.bulkDelete('specialization', null, {}),
 };

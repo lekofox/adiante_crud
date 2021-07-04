@@ -44,8 +44,5 @@
 
 ## To-Do
 
-Adicionar length correto das migrations
 ** refatorar estrutura e isolar responsabilidades de código
-docker compose do db (local)
-heroku
 documentacao

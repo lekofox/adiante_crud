@@ -32,8 +32,8 @@ class Doctor extends Model {
   }
 
   static associate(models) {
-    Doctor.belongsTo(models.DoctorMedicalSpec, { foreignKey: 'crm', targetKey: 'doctor_crm' });
-    Doctor.belongsToMany(models.MedicalSpecialization, { through: 'doctor_medical_specialization' });
+    Doctor.belongsTo(models.DoctorSpecialization, { foreignKey: 'crm', targetKey: 'doctor_crm' });
+    Doctor.belongsToMany(models.Specialization, { through: 'doctor_specialization' });
   }
 }
 

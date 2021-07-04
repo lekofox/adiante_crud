@@ -8,8 +8,8 @@
 import * as Yup from 'yup';
 import axios from 'axios';
 import Doctor from '../models/Doctor';
-import DoctorMedicalSpec from '../models/DoctorMedicalSpec';
-import MedicalSpecialization from '../models/MedicalSpecialization';
+import DoctorSpecialization from '../models/DoctorSpecialization';
+import Specialization from '../models/Specialization';
 
 class DoctorController {
   async store(req, res) {
@@ -67,13 +67,13 @@ class DoctorController {
       });
 
       for (let i = 0; i < especialidades.length; i++) {
-        const medical_specialization_id = especialidades[i];
+        const specialization_id = especialidades[i];
         const doctor_crm = crm;
-        const find = await MedicalSpecialization.findByPk(especialidades[i]);
-        const medical_specialization_name = find.dataValues.especialidade;
+        const find = await Specialization.findByPk(especialidades[i]);
+        const specialization_name = find.dataValues.especialidade;
 
         if (find) {
-          DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+          DoctorSpecialization.create({ specialization_id, doctor_crm, specialization_name });
         }
       }
 
@@ -131,7 +131,7 @@ class DoctorController {
       });
       const { crm } = req.params;
       const crmDoctor = await Doctor.findByPk(crm);
-      const onUpdate = await DoctorMedicalSpec.findAll({
+      const onUpdate = await DoctorSpecialization.findAll({
         where: { doctor_crm: crm },
       });
 
@@ -166,13 +166,13 @@ class DoctorController {
       });
 
       for (let i = 0; i < especialidades.length; i++) {
-        const medical_specialization_id = especialidades[i];
+        const specialization_id = especialidades[i];
         const doctor_crm = crm;
-        const find = await MedicalSpecialization.findByPk(especialidades[i]);
-        const medical_specialization_name = find.dataValues.especialidade;
+        const find = await Specialization.findByPk(especialidades[i]);
+        const specialization_name = find.dataValues.especialidade;
 
         if (find) {
-          DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+          DoctorSpecialization.create({ specialization_id, doctor_crm, specialization_name });
         }
       }
       return res.status(200).json({
@@ -206,7 +206,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -240,7 +240,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -268,7 +268,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -296,7 +296,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -324,7 +324,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -352,7 +352,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -380,7 +380,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -408,7 +408,7 @@ class DoctorController {
           through: {
             attributes: [],
           },
-          model: MedicalSpecialization,
+          model: Specialization,
           attributes: ['especialidade'],
 
         },
@@ -427,10 +427,10 @@ class DoctorController {
     }
   }
 
-  async getByMedicalSpecialization(req, res) {
+  async getBySpecialization(req, res) {
     try {
       const { especialidade } = req.params;
-      const result = await MedicalSpecialization.findAll({
+      const result = await Specialization.findAll({
         where: { especialidade },
         attributes: ['especialidade'],
         include: {
