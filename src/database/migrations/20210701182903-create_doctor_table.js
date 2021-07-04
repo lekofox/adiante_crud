@@ -16,11 +16,11 @@ module.exports = {
       allowNull: false,
     },
     telefone_fixo: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: true,
     },
     telefone_celular: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
       allowNull: true,
     },
     logradouro: {

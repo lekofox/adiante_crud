@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable eqeqeq */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-plusplus */
@@ -12,397 +13,488 @@ import MedicalSpecialization from '../models/MedicalSpecialization';
 
 class DoctorController {
   async store(req, res) {
-    const schema = await Yup.object().shape({
-      crm: Yup.number().required(),
-      nome: Yup.string().required(),
-      cep: Yup.number().required(),
-      telefone_fixo: Yup.number().required(),
-      telefone_celular: Yup.number().required(),
-      especialidades: Yup.number().required(),
-    });
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({
-        message: 'Falha ao cadastrar médico; Por favor corrija os dados de cadastro',
+    try {
+      const schema = await Yup.object().shape({
+        crm: Yup.number().required(),
+        nome: Yup.string().required(),
+        cep: Yup.number().required(),
+        telefone_fixo: Yup.number().required(),
+        telefone_celular: Yup.number().required(),
+        especialidades: Yup.number().required(),
       });
-    }
 
-    const doctorExist = await Doctor.findOne({
-      where: { crm: req.body.crm },
-    });
-    const doctorNotActive = await Doctor.findOne({
-      where: { crm: req.body.crm },
-      paranoid: false,
-    });
-
-    if (doctorExist) {
-      return res.status(400).json({ error: 'Médico já existe no sistema' });
-    }
-    if (doctorNotActive) {
-      return res.status(400).json({
-        message: 'Esse CRM foi desativado',
-      });
-    }
-
-    const {
-      crm, nome, cep, telefone_fixo, telefone_celular, especialidades,
-    } = req.body;
-    if (especialidades.length < 2) {
-      return res.status(400).json({ message: 'Você deve ter ao menos duas especialidades' });
-    }
-    if (crm.length > 7) {
-      return res.status(400).json({
-        message: 'O CRM não pode conter mais que 7 caracteres',
-      });
-    }
-
-    const {
-      logradouro, complemento, bairro, localidade, uf,
-    } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
-
-    await Doctor.create({
-      crm, nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
-    });
-
-    for (let i = 0; i < especialidades.length; i++) {
-      const medical_specialization_id = especialidades[i];
-      const doctor_crm = crm;
-      const find = await MedicalSpecialization.findByPk(especialidades[i]);
-      const medical_specialization_name = find.dataValues.especialidade;
-
-      if (find) {
-        DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({
+          message: 'Falha ao cadastrar médico; Por favor corrija os dados de cadastro',
+        });
       }
+
+      const doctorExist = await Doctor.findOne({
+        where: { crm: req.body.crm },
+      });
+      const doctorNotActive = await Doctor.findOne({
+        where: { crm: req.body.crm },
+        paranoid: false,
+      });
+
+      if (doctorExist) {
+        return res.status(400).json({ message: 'Médico já existe no sistema' });
+      }
+      if (doctorNotActive) {
+        return res.status(400).json({
+          message: 'Esse CRM foi desativado',
+        });
+      }
+
+      const {
+        crm, nome, cep, telefone_fixo, telefone_celular, especialidades,
+      } = req.body;
+      if (especialidades.length < 2) {
+        return res.status(400).json({ message: 'Você deve ter ao menos duas especialidades' });
+      }
+      if (crm.length > 7) {
+        return res.status(400).json({
+          message: 'O CRM não pode conter mais que 7 caracteres',
+        });
+      }
+
+      const {
+        logradouro, complemento, bairro, localidade, uf,
+      } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
+
+      await Doctor.create({
+        crm, nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
+      });
+
+      for (let i = 0; i < especialidades.length; i++) {
+        const medical_specialization_id = especialidades[i];
+        const doctor_crm = crm;
+        const find = await MedicalSpecialization.findByPk(especialidades[i]);
+        const medical_specialization_name = find.dataValues.especialidade;
+
+        if (find) {
+          DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+        }
+      }
+
+      return res.status(201).json({
+        crm,
+        nome,
+        cep,
+        logradouro,
+        complemento,
+        bairro,
+        localidade,
+        uf,
+        telefone_fixo,
+        telefone_celular,
+
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
+      });
     }
-
-    return res.json({
-      crm,
-      nome,
-      cep,
-      logradouro,
-      complemento,
-      bairro,
-      localidade,
-      uf,
-      telefone_fixo,
-      telefone_celular,
-
-    });
   }
 
   async delete(req, res) {
-    const { crm } = req.params;
+    try {
+      const { crm } = req.params;
 
-    const crmDoctor = await Doctor.findByPk(crm);
-    if (!crmDoctor) {
-      return res.status(404).json({
-        message: 'Erro ao remover; CRM selecionado não existe na base',
+      const crmDoctor = await Doctor.findByPk(crm);
+      if (!crmDoctor) {
+        return res.status(404).json({
+          message: 'Erro ao remover; CRM selecionado não existe em nossa base',
+        });
+      }
+      await Doctor.destroy({ where: { crm } });
+      return res.status(200).json({
+        message: 'Médico removido com sucesso',
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    await Doctor.destroy({ where: { crm } });
-    return res.json({
-      message: 'Médico removido com sucesso',
-    });
   }
 
   async update(req, res) {
-    const schema = await Yup.object().shape({
-      nome: Yup.string().required(),
-      cep: Yup.number().required(),
-      telefone_fixo: Yup.number().required(),
-      telefone_celular: Yup.number().required(),
-      especialidades: Yup.number().required(),
-    });
-    const { crm } = req.params;
-    const crmDoctor = await Doctor.findByPk(crm);
-    const onUpdate = await DoctorMedicalSpec.findAll({
-      where: { doctor_crm: crm },
-    });
-
-    if (!crmDoctor) {
-      return res.status(404).json({
-        message: 'Erro ao alterar os dados do médico; CRM selecionado não existe em nossa base',
+    try {
+      const schema = await Yup.object().shape({
+        nome: Yup.string().required(),
+        cep: Yup.number().required(),
+        telefone_fixo: Yup.number().required(),
+        telefone_celular: Yup.number().required(),
+        especialidades: Yup.number().required(),
       });
-    }
-
-    if (!(await schema.isValid(req.body))) {
-      return res.status(400).json({
-        message: 'Falha na validação; Por favor corrija os dados para alteração',
+      const { crm } = req.params;
+      const crmDoctor = await Doctor.findByPk(crm);
+      const onUpdate = await DoctorMedicalSpec.findAll({
+        where: { doctor_crm: crm },
       });
-    }
 
-    const {
-      nome, cep, telefone_fixo, telefone_celular, especialidades,
-    } = req.body;
-
-    if (especialidades.length < 2) {
-      return res.status(400).json({ message: 'Você deve ter ao menos duas especialidades' });
-    }
-
-    const {
-      logradouro, complemento, bairro, localidade, uf,
-    } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
-    for (let i = 0; i < onUpdate.length; i++) {
-      await onUpdate[i].destroy();
-    }
-    await crmDoctor.update({
-      nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
-    });
-
-    for (let i = 0; i < especialidades.length; i++) {
-      const medical_specialization_id = especialidades[i];
-      const doctor_crm = crm;
-      const find = await MedicalSpecialization.findByPk(especialidades[i]);
-      const medical_specialization_name = find.dataValues.especialidade;
-
-      if (find) {
-        DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+      if (!crmDoctor) {
+        return res.status(404).json({
+          message: 'Erro ao alterar os dados do médico; CRM selecionado não existe em nossa base',
+        });
       }
-    }
-    return res.json({
-      crm,
-      nome,
-      cep,
-      logradouro,
-      complemento,
-      bairro,
-      localidade,
-      uf,
-      telefone_fixo,
-      telefone_celular,
 
-    });
+      if (!(await schema.isValid(req.body))) {
+        return res.status(400).json({
+          message: 'Falha na validação; Por favor corrija os dados para alteração',
+        });
+      }
+
+      const {
+        nome, cep, telefone_fixo, telefone_celular, especialidades,
+      } = req.body;
+
+      if (especialidades.length < 2) {
+        return res.status(400).json({ message: 'Você deve ter ao menos duas especialidades' });
+      }
+
+      const {
+        logradouro, complemento, bairro, localidade, uf,
+      } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
+      for (let i = 0; i < onUpdate.length; i++) {
+        await onUpdate[i].destroy();
+      }
+      await crmDoctor.update({
+        nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
+      });
+
+      for (let i = 0; i < especialidades.length; i++) {
+        const medical_specialization_id = especialidades[i];
+        const doctor_crm = crm;
+        const find = await MedicalSpecialization.findByPk(especialidades[i]);
+        const medical_specialization_name = find.dataValues.especialidade;
+
+        if (find) {
+          DoctorMedicalSpec.create({ medical_specialization_id, doctor_crm, medical_specialization_name });
+        }
+      }
+      return res.status(200).json({
+        crm,
+        nome,
+        cep,
+        logradouro,
+        complemento,
+        bairro,
+        localidade,
+        uf,
+        telefone_fixo,
+        telefone_celular,
+
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
+      });
+    }
   }
 
   async getByCRM(req, res) {
-    const { crm } = req.params;
-    const result = await Doctor.findOne({
-      where: { crm },
-      paranoid: false,
-      include: {
-        through: {
-          attributes: [],
+    try {
+      const { crm } = req.params;
+      const result = await Doctor.findOne({
+        where: { crm },
+        paranoid: false,
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
+
         },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+      });
+      if (!result) {
+        return res.status(404).json({
+          message: 'O CRM informado não foi encontrado',
+        });
+      }
+      if (result.dataValues.deletedAt != null) {
+        return res.status(400).json({
+          message: 'O CRM informado foi desativado',
+        });
+      }
 
-      },
-    });
-    if (!result) {
-      return res.status(404).json({
-        message: `O CRM ${crm} não foi encontrado`,
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    if (result.dataValues.deletedAt != null) {
-      return res.status(400).json({
-        message: `O CRM ${crm} foi desativado`,
-      });
-    }
-
-    return res.status(200).json(result);
   }
 
   async getByAddress(req, res) {
-    const { logradouro } = req.params;
-    const result = await Doctor.findAll({
-      where: { logradouro },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { logradouro } = req.params;
+      const result = await Doctor.findAll({
+        where: { logradouro },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico residente no logradouro ${logradouro}`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico cadastrado no logradouro informado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByDistrict(req, res) {
-    const { bairro } = req.params;
-    const result = await Doctor.findAll({
-      where: { bairro },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { bairro } = req.params;
+      const result = await Doctor.findAll({
+        where: { bairro },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico residente no bairro ${bairro}`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico cadastrado no bairro informado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByCity(req, res) {
-    const { localidade } = req.params;
-    const result = await Doctor.findAll({
-      where: { localidade },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { localidade } = req.params;
+      const result = await Doctor.findAll({
+        where: { localidade },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico residente na cidade de ${localidade}`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico cadastrado na cidade informada',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByState(req, res) {
-    const { uf } = req.params;
-    const result = await Doctor.findAll({
-      where: { uf },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { uf } = req.params;
+      const result = await Doctor.findAll({
+        where: { uf },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico residente no estado de ${uf}`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico cadastrado no UF informado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByPhone(req, res) {
-    const { telefone_fixo } = req.params;
-    const result = await Doctor.findAll({
-      where: { telefone_fixo },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { telefone_fixo } = req.params;
+      const result = await Doctor.findAll({
+        where: { telefone_fixo },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico com o telefone ${telefone_fixo} em nossa base`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico com o telefone informado cadastrado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByCellPhone(req, res) {
-    const { telefone_celular } = req.params;
-    const result = await Doctor.findAll({
-      where: { telefone_celular },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { telefone_celular } = req.params;
+      const result = await Doctor.findAll({
+        where: { telefone_celular },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não existe nenhum médico com o telefone ${telefone_celular} cadastrado`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não existe nenhum médico com o telefone celular informado cadastrado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByCEP(req, res) {
-    const { CEP } = req.params;
-    const result = await Doctor.findAll({
-      where: { CEP },
-      include: {
-        through: {
-          attributes: [],
-        },
-        model: MedicalSpecialization,
-        attributes: ['especialidade'],
+    try {
+      const { CEP } = req.params;
+      const result = await Doctor.findAll({
+        where: { CEP },
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: MedicalSpecialization,
+          attributes: ['especialidade'],
 
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: `Não foi encontrado nenhum médico cadastrado com o CEP ${CEP}`,
+        },
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Não foi encontrado nenhum médico cadastrado com o CEP informado',
+        });
+      }
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    return res.status(200).json(result);
   }
 
   async getByMedicalSpecialization(req, res) {
-    const { especialidade } = req.params;
-    const result = await MedicalSpecialization.findAll({
-      where: { especialidade },
-      attributes: ['especialidade'],
-      include: {
-        through: {
-          attributes: [],
+    try {
+      const { especialidade } = req.params;
+      const result = await MedicalSpecialization.findAll({
+        where: { especialidade },
+        attributes: ['especialidade'],
+        include: {
+          through: {
+            attributes: [],
+          },
+          model: Doctor,
+
+          attributes: ['crm', 'nome', 'telefone_fixo', 'telefone_celular', 'cep', 'logradouro', 'bairro', 'localidade', 'uf'],
+
         },
-        model: Doctor,
+      });
+      if (result == '') {
+        return res.status(404).json({
+          message: 'Especialidade não encontrada',
+        });
+      }
+      if (result[0].Doctors.length == 0) {
+        return res.status(400).json({
+          message: 'Não existe nenhum médico com essa especialidade em nossa base',
+        });
+      }
+      // eslint-disable-next-line eqeqeq
 
-        attributes: ['crm', 'nome', 'telefone_fixo', 'telefone_celular', 'cep', 'logradouro', 'bairro', 'localidade', 'uf'],
-
-      },
-    });
-    if (result == '') {
-      return res.status(404).json({
-        message: 'Especialidade não encontrada',
+      return res.status(200).json(result);
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    if (result[0].Doctors.length == 0) {
-      return res.status(400).json({
-        message: 'Não existe nenhum médico com essa especialidade em nossa base',
-      });
-    }
-    // eslint-disable-next-line eqeqeq
-
-    return res.status(200).json(result);
   }
 
   async reactivateDoctor(req, res) {
-    const { crm } = req.params;
-    const doctorExists = await Doctor.findOne({
-      where: { crm },
-      paranoid: false,
-    });
+    try {
+      const { crm } = req.params;
+      const doctorExists = await Doctor.findOne({
+        where: { crm },
+        paranoid: false,
+      });
 
-    if (!doctorExists) {
-      return res.status(404).json({
-        message: `Não foi encontrado nenhum médico cadastrado com o CRM ${crm}`,
+      if (!doctorExists) {
+        return res.status(404).json({
+          message: 'Não foi encontrado nenhum médico cadastrado com o CRM informado',
+        });
+      }
+      if (doctorExists.dataValues.deletedAt == null) {
+        return res.status(400).json({
+          message: 'O CRM informado já está ativo',
+        });
+      }
+      await Doctor.restore({
+        where: { crm },
+      });
+
+      return res.status(200).json({
+        message: 'O CRM informado foi reativado',
+      });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({
+        message: 'Erro inesperado; Por favor tente novamente',
       });
     }
-    if (doctorExists.dataValues.deletedAt == null) {
-      return res.status(400).json({
-        message: `O CRM ${crm} já está ativo`,
-      });
-    }
-    await Doctor.restore({
-      where: { crm },
-    });
-
-    return res.status(200).json({
-      message: `O CRM ${crm} foi reativado`,
-    });
   }
 }
 
