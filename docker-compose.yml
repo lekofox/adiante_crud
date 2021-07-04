@@ -1,0 +1,12 @@
+version: "3.3"
+
+services:
+
+  api: 
+     build: "./"
+     container_name: adiante_crud
+     restart: always
+     volumes: 
+      - ./:/home/node/app
+     ports:
+     - "3333:3333"
