@@ -6,46 +6,46 @@
 
 <!-- TABLE OF CONTENTS -->
 <details open="open">
-  <summary>Table of Contents</summary>
+  <summary>Sumário</summary>
   <ol>
     <li>
-      <a href="#about-the-project">About The Project</a>
+      <a href="#sobre-o-projeto">Sobre o projeto</a>
       <ul>
-        <li><a href="#built-with">Built With</a></li>
+        <li><a href="#construído-com">Construído com</a></li>
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#executando-o-projeto-localmente">Executando projeto localmente</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation-locally">Installation locally</a></li>
+        <li><a href="#pré-requisitos-para-execução-local">Pré requisitios para execução local</a></li>
+        <li><a href="#instalação-local">Instalação local</a></li>
       </ul>
     <li>
-      <a href="#getting-started-with-heroku">Getting started (Heroku)</a>
+      <a href="#executando-com-o-docker">Executando o projeto com Docker</a>
       <ul>
-        <li><a href="#prerequisites-heroku">Prerequisites</a></li>
-        <li><a href="#using">Using</a></li>
+        <li><a href="#pré-requisitos-docker">Pré-requisitos Docker</a></li>
+        <li><a href="#utilizando">Utilizando</a></li>
       </ul>
     </li>
-    <li><a href="#test-case">Test cases</a></li>
-    <ul><li><a href="#seeds-data">Seeds data</li></ul>
+    <li><a href="#informações-sobre-as-seeds">Informações sobre as seeds</li>
+    <ul></ul>
     <li><a href="#license">License</a></li>
     <li><a href="#dev-notes">Dev Notes</a></li>
     <ul>
         <li><a href="#docker-container">Docker Container</a></li>
-        <li><a href="#test-unit">Unit Test</a></li>
+        <li><a href="#testes-com-newman">Testes com Newman</a></li>
       </ul>
   </ol>
 </details>
 
-## About The Project
+## Sobre o projeto
 
-Uma API simulando o back-end de uma sistema de gestão de cadastros para médicos\
+Uma API simulando o back-end de uma sistema de gestão de cadastros para médicos.\
 Construída no estilo RESTful utilizando Node.js, MySQL e outras dependências.\
 É possível cadastrar novos médicos, desativa-los, alterar os dados e buscar por todos os campos do cadastro.
 
 
-### Built With
+### Construído com
 
 - [express](https://expressjs.com/)
 - [yup](https://www.npmjs.com/package/yup)
@@ -57,13 +57,13 @@ Construída no estilo RESTful utilizando Node.js, MySQL e outras dependências.\
 
 <!-- GETTING STARTED -->
 
-## Getting Started
+## Executando o projeto localmente
 
 Para utilizar a aplicação, você deve seguir os passos descritos abaixo.\
 O banco de dados está hospedado na AWS e a aplicação containerizada com Docker.\
 Caso você não deseje utilizar docker, pode clonar o repositório e rodar localmente a aplicação seguindo os passos abaixo. 
 
-### Prerequisites locally
+### Pré-requisitos para execução local
 
 
 - npm
@@ -75,7 +75,7 @@ Caso você não deseje utilizar docker, pode clonar o repositório e rodar local
   npm install sequelize-cli -g
   ```
 
-### Installation locally
+### Instalação local
 
 1. Clone o repositório
    ```sh
@@ -101,12 +101,34 @@ Caso você não deseje utilizar docker, pode clonar o repositório e rodar local
    ```JS
    npm run dev
    ```
-## Getting Started with Docker
+## Executando com o Docker
 
 Para utilizar a aplicação com o Docker siga os passos abaixo.
 
+1. De pull na imagem do docker hub
+```sh
+  docker pull lekofox/adiante_crud
+  ```
+2. Execute a imagem
+```sh
+  docker run --name Adiante_CRUD -p 3333:3333 -d lekofox/adiante_crud
+  ```
+3.Você pode executar os comandos abaixo no próprio terminal do Docker.
 
-### Prerequisites
+4. Colocar o banco de dados em estado inicial
+   ```JS
+   npx sequelize db:migrate:undo:all
+   ```
+5. Iniciar as migrations
+   ```JS
+   npx sequelize db:migrate
+   ```
+6. Iniciar as seeds
+   ```JS
+   npx sequelize db:seed:all
+   ```  
+
+### Pré-requisitos Docker
 
 - Docker
   ```sh
@@ -123,7 +145,7 @@ Para utilizar a aplicação com o Docker siga os passos abaixo.
   https://www.beekeeperstudio.io/
   ```
 
-### Using
+### Utilizando
 
 Para acessar a documentação com todas as rotas, visite https://documenter.getpostman.com/view/16508397/Tzm2Kdss#intro\
 Você pode testar todas as rotas utilizando Insomnia, Postman ou o seu API Client de preferência, seguindo as rotas destacadas na documentação.\
@@ -133,7 +155,7 @@ Caso queira executar os test cases pré definidos, você pode executar o comando
 Todos os endpoints são executados em localhost na porta 3333 (http://localhost:3333/)
 
 
-## Seeds Data
+## Informações sobre as seeds
 
 Nas seeds você encontrará 8 especializações médicas que são de vital importância para o funcionamento correto da API, é necessário garantir que elas foram devidamente executadas.\
 Em conjunto com as especializações, será criado também o registro de um médico (Neandro Lias, com CRM 1234567) e um registro na tabela relacional `doctor_specialization` vinculando o Neandro às especializações de Alergologia e Angiologia.
@@ -149,6 +171,6 @@ Distribuído sob a licença MIT.
 A ideia e implementação inicial era para realizar a conteinerização de todo o ambiente (aplicação e banco de dados), mas utilizando a AWS para hospedar o banco de dados, não vi necessidade de colocar o database localmente com docker.
 
 
-#### Test unit
+#### Testes com Newman
 Os testes foram realizados utilizando a própria interface do Postman e executando via linha de comando com a bibliotca newman, como citado anteriormente.
 Diversos casos de testes foram criados (tanto para sucesso quanto para erros), e você pode testa-los usando o comando ```npx newman run postman_test_cases.json``` após instalar as dependências
