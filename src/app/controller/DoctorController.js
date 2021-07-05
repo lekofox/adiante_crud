@@ -7,6 +7,7 @@
 /* eslint-disable class-methods-use-this */
 import * as Yup from 'yup';
 import axios from 'axios';
+import { Op } from 'sequelize';
 import Doctor from '../models/Doctor';
 import DoctorSpecialization from '../models/DoctorSpecialization';
 import Specialization from '../models/Specialization';
@@ -62,17 +63,28 @@ class DoctorController {
         logradouro, complemento, bairro, localidade, uf,
       } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
 
+      for (let i = 0; i < especialidades.length; i++) {
+        const specialization_id_check = especialidades[i];
+        const find = await Specialization.findByPk(specialization_id_check);
+        if (find === null) {
+          return res.status(404).json({
+            message: 'Especialidade(s) não encontrada; Por favor corrija os dados de cadastro',
+          });
+        }
+      }
+
       await Doctor.create({
         crm, nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
       });
 
+      const especializacoes = [];
       for (let i = 0; i < especialidades.length; i++) {
         const specialization_id = especialidades[i];
         const doctor_crm = crm;
-        const find = await Specialization.findByPk(especialidades[i]);
-        const specialization_name = find.dataValues.especialidade;
-
-        if (find) {
+        const result = await Specialization.findByPk(especialidades[i]);
+        const specialization_name = result.dataValues.especialidade;
+        especializacoes.push(specialization_name);
+        if (result) {
           DoctorSpecialization.create({ specialization_id, doctor_crm, specialization_name });
         }
       }
@@ -88,6 +100,7 @@ class DoctorController {
         uf,
         telefone_fixo,
         telefone_celular,
+        especializacoes,
 
       });
     } catch (err) {
@@ -154,7 +167,15 @@ class DoctorController {
       if (especialidades.length < 2) {
         return res.status(400).json({ message: 'Você deve ter ao menos duas especialidades' });
       }
-
+      for (let i = 0; i < especialidades.length; i++) {
+        const specialization_id_check = especialidades[i];
+        const find = await Specialization.findByPk(specialization_id_check);
+        if (find === null) {
+          return res.status(404).json({
+            message: 'Especialidade(s) não encontrada; Por favor corrija os dados de cadastro',
+          });
+        }
+      }
       const {
         logradouro, complemento, bairro, localidade, uf,
       } = await (await axios.get(`http://viacep.com.br/ws/${cep}/json/`)).data;
@@ -164,13 +185,13 @@ class DoctorController {
       await crmDoctor.update({
         nome, cep, telefone_fixo, telefone_celular, logradouro, complemento, bairro, localidade, uf,
       });
-
+      const especializacoes = [];
       for (let i = 0; i < especialidades.length; i++) {
         const specialization_id = especialidades[i];
         const doctor_crm = crm;
         const find = await Specialization.findByPk(especialidades[i]);
         const specialization_name = find.dataValues.especialidade;
-
+        especializacoes.push(specialization_name);
         if (find) {
           DoctorSpecialization.create({ specialization_id, doctor_crm, specialization_name });
         }
@@ -186,6 +207,7 @@ class DoctorController {
         uf,
         telefone_fixo,
         telefone_celular,
+        especializacoes,
 
       });
     } catch (err) {
@@ -431,7 +453,13 @@ class DoctorController {
     try {
       const { especialidade } = req.params;
       const result = await Specialization.findAll({
-        where: { especialidade },
+        where: {
+
+          [Op.or]: [
+            { id: especialidade },
+            { especialidade },
+          ],
+        },
         attributes: ['especialidade'],
         include: {
           through: {
