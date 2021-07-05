@@ -2,6 +2,7 @@
 	"info": {
 		"_postman_id": "d5756f56-c279-4b5d-8c83-45ac07a3e38f",
 		"name": "Adiante's CRUD",
+		"description": "# Introdução\nAPI criada com base nas especificações do teste. A ideia é que simule o back-end de uma aplicação que faz a gestão cadastral dos médicos. Nesta API você vai conseguir cadastrar um médico, desativa-lo, ativa-lo e alterar seus dados. Também é possível realizar busca por todos os campos de cadastro.\n\n# Visão Geral\nA API foi criada utilizando Node.Js com Express e MySQL como banco de dados. Validações foram realizadas com YUP e fetch na API dos correios realizada com Axios.\nA estruturação de mensagens de erro visa deixar mais facil a leitura por parte do usuário.\n\n# Error Codes\n\n- 200 - OK - Requisição bem sucedida \n- 201 - OK - Post sucedido, deve retornar o usuário criado já com as informações completas de endereço\n- 400 - Bad Request - Erro que pode ter sido causado por falta de informações ou algum parâmetro indevido\n- 404 - Not Found - Caso a API não encontre os parâmetros passados, retornará erro 404\n- 500 - Erro genérico capturado pelo servidor",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -75,6 +76,51 @@
 			"response": []
 		},
 		{
+			"name": "Deletar médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status 200 - Requisição OK - Médico removido\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"pm.test(\"Status 404 - Requisição falhou - CRM informado não existe no banco de dados\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"    let jsonData = pm.response.json()\r",
+							"    pm.expect(jsonData.message).to.eql('Erro ao remover; CRM selecionado não existe em nossa base')\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "localhost:3333/adiante-api/v1/medicos/:crm",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"adiante-api",
+						"v1",
+						"medicos",
+						":crm"
+					],
+					"variable": [
+						{
+							"key": "crm",
+							"value": "1234578"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Reativar médico",
 			"event": [
 				{
@@ -117,13 +163,6 @@
 						"medicos",
 						"reativar",
 						":crm"
-					],
-					"query": [
-						{
-							"key": "crm",
-							"value": "518649",
-							"disabled": true
-						}
 					],
 					"variable": [
 						{
@@ -173,61 +212,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "localhost:3333/adiante-api/v1/medicos/:crm",
-					"host": [
-						"localhost"
-					],
-					"port": "3333",
-					"path": [
-						"adiante-api",
-						"v1",
-						"medicos",
-						":crm"
-					],
-					"variable": [
-						{
-							"key": "crm",
-							"value": "1234578\n"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Deletar médico",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.test(\"Status 200 - Requisição OK - Médico removido\", function () {\r",
-							"    pm.response.to.have.status(200);\r",
-							"});\r",
-							"pm.test(\"Status 404 - Requisição falhou - CRM informado não existe no banco de dados\", function () {\r",
-							"    pm.response.to.have.status(404);\r",
-							"    let jsonData = pm.response.json()\r",
-							"    pm.expect(jsonData.message).to.eql('Erro ao remover; CRM selecionado não existe em nossa base')\r",
-							"});"
-						],
-						"type": "text/javascript"
-					}
-				}
-			],
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
+					"raw": "{\r\n\t\"nome\":\"John Doe\",\r\n\t\"cep\": \"04576020\", \r\n\t\"telefone_fixo\": 551125004699,\r\n\t\"telefone_celular\": 5511988864502,\r\n\t\"especialidades\": [7,5,8]\r\n}\t",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -283,21 +268,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/CRM/:crm",
 					"host": [
@@ -343,21 +316,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/logradouro/:logradouro",
 					"host": [
@@ -374,7 +335,7 @@
 					"variable": [
 						{
 							"key": "logradouro",
-							"value": "Rua Ricardo Félix"
+							"value": "Rua Georce Ohm"
 						}
 					]
 				}
@@ -403,21 +364,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/bairro/:bairro",
 					"host": [
@@ -434,7 +383,7 @@
 					"variable": [
 						{
 							"key": "bairro",
-							"value": "Jardim Vila Formosa"
+							"value": "Cidade Monções"
 						}
 					]
 				}
@@ -463,21 +412,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/cidade/:localidade",
 					"host": [
@@ -523,21 +460,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/uf/:uf",
 					"host": [
@@ -583,21 +508,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/telefone/:telefone_fixo",
 					"host": [
@@ -614,7 +527,7 @@
 					"variable": [
 						{
 							"key": "telefone_fixo",
-							"value": "123456789"
+							"value": "551125004699"
 						}
 					]
 				}
@@ -643,21 +556,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/celular/:telefone_celular",
 					"host": [
@@ -674,7 +575,7 @@
 					"variable": [
 						{
 							"key": "telefone_celular",
-							"value": "11932130457"
+							"value": "5511988864502"
 						}
 					]
 				}
@@ -703,21 +604,9 @@
 					}
 				}
 			],
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
 			"request": {
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\r\n\t\"nome\":\"Leonardo Dias\",\r\n\t\"cep\": \"03472080\", \r\n\t\"telefone_fixo\": 1141862362,\r\n\t\"telefone_celular\": 11932130457,\r\n\t\"especialidades\": [1,2,3]\r\n}\t",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "localhost:3333/adiante-api/v1/medicos/CEP/:cep",
 					"host": [
@@ -734,7 +623,7 @@
 					"variable": [
 						{
 							"key": "cep",
-							"value": "15432321"
+							"value": "04576020"
 						}
 					]
 				}
@@ -788,7 +677,7 @@
 					"variable": [
 						{
 							"key": "especialidade",
-							"value": "Alergologia"
+							"value": "Cirurgia de tórax"
 						}
 					]
 				}

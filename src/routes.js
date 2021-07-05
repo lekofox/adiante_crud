@@ -7,10 +7,17 @@ import PutDoctorController from './app/controller/PutDoctorController';
 
 const routes = new Router();
 
+// POST Routes
 routes.post('/adiante-api/v1/medicos', PostDoctorController.store);
 routes.post('/adiante-api/v1/medicos/reativar/:crm', PostDoctorController.reactivateDoctor);
+
+// PUT Routes
 routes.put('/adiante-api/v1/medicos/:crm', PutDoctorController.update);
+
+// DELETE Routes
 routes.delete('/adiante-api/v1/medicos/:crm', DeleteDoctorController.delete);
+
+// GET Routes
 routes.get('/adiante-api/v1/medicos/CRM/:crm', GetDoctorController.getByCRM);
 routes.get('/adiante-api/v1/medicos/logradouro/:logradouro', GetDoctorController.getByAddress);
 routes.get('/adiante-api/v1/medicos/bairro/:bairro', GetDoctorController.getByDistrict);
@@ -20,7 +27,5 @@ routes.get('/adiante-api/v1/medicos/telefone/:telefone_fixo', GetDoctorControlle
 routes.get('/adiante-api/v1/medicos/celular/:telefone_celular', GetDoctorController.getByCellPhone);
 routes.get('/adiante-api/v1/medicos/CEP/:CEP', GetDoctorController.getByCEP);
 routes.get('/adiante-api/v1/medicos/especialidade/:especialidade', GetDoctorController.getBySpecialization);
-
-
 
 export default routes;

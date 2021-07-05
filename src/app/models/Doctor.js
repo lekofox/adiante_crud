@@ -24,6 +24,7 @@ class Doctor extends Model {
       {
         sequelize,
         underscored: true,
+        // Soft Delete set to true
         paranoid: true,
         tableName: 'doctors',
       },

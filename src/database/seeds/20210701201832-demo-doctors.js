@@ -7,7 +7,7 @@ module.exports = {
       telefone_fixo: 123456789,
       telefone_celular: 987654321,
       logradouro: 'Rua Hercules Abruzzesse',
-      complemento: 67,
+      complemento: 105,
       bairro: 'Parque Santa Teresa',
       localidade: 'Carapicuíba',
       uf: 'SP',

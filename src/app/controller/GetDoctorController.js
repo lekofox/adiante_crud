@@ -11,9 +11,11 @@ import Doctor from '../models/Doctor';
 import Specialization from '../models/Specialization';
 
 class GetDoctorController {
+  // Busca no banco de dados um registro baseado no parametro informado
   async getByCRM(req, res) {
     try {
       const { crm } = req.params;
+      // Buscar por um registro com base no parametro informado e retorna os dados do médico junto com as especialidades que ele tem
       const result = await Doctor.findOne({
         where: { crm },
         paranoid: false,
@@ -26,11 +28,13 @@ class GetDoctorController {
 
         },
       });
+      // Caso nenhum registro seja encontrado, retorna erro 404 com a mensagem descrita abaixo
       if (!result) {
         return res.status(404).json({
           message: 'O CRM informado não foi encontrado',
         });
       }
+      // Caso o valor do campo deletedAt de result for diferente de nulo, retorna erro 400 com a mensagem descrita abaixo
       if (result.dataValues.deletedAt != null) {
         return res.status(400).json({
           message: 'O CRM informado foi desativado',
@@ -47,8 +51,10 @@ class GetDoctorController {
   }
 
   async getByAddress(req, res) {
+    // Busca no banco de dados todos os registro que contenham o parametro informado no seu campo de logradouro
     try {
       const { logradouro } = req.params;
+      // Retorna todos os usuários com o logradouro informado no parametro, assim com as especialidades relacionadas.
       const result = await Doctor.findAll({
         where: { logradouro },
         include: {
@@ -60,6 +66,7 @@ class GetDoctorController {
 
         },
       });
+      // Caso não exista nenhum registro com o parametro informado, retorna erro 404 e a mensagem descrita abaixo
       if (result == '') {
         return res.status(404).json({
           message: 'Não existe nenhum médico cadastrado no logradouro informado',
@@ -75,6 +82,8 @@ class GetDoctorController {
   }
 
   async getByDistrict(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { bairro } = req.params;
       const result = await Doctor.findAll({
@@ -103,6 +112,8 @@ class GetDoctorController {
   }
 
   async getByCity(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { localidade } = req.params;
       const result = await Doctor.findAll({
@@ -131,6 +142,8 @@ class GetDoctorController {
   }
 
   async getByState(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { uf } = req.params;
       const result = await Doctor.findAll({
@@ -159,6 +172,8 @@ class GetDoctorController {
   }
 
   async getByPhone(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { telefone_fixo } = req.params;
       const result = await Doctor.findAll({
@@ -187,6 +202,8 @@ class GetDoctorController {
   }
 
   async getByCellPhone(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { telefone_celular } = req.params;
       const result = await Doctor.findAll({
@@ -215,6 +232,8 @@ class GetDoctorController {
   }
 
   async getByCEP(req, res) {
+    // Busca no banco de dados um registro baseado no parametro informado
+    // Mesma estrutura do método acima
     try {
       const { CEP } = req.params;
       const result = await Doctor.findAll({
@@ -243,11 +262,13 @@ class GetDoctorController {
   }
 
   async getBySpecialization(req, res) {
+    // Busca todos os registros que contenham em seu campo de especialidade o parametro informado
     try {
       const { especialidade } = req.params;
+      // Busca por todas as especialidades (seja por ID ou pelo nome da especialidade) e retorna todos os médicos que possuem aquela especialidade
       const result = await Specialization.findAll({
         where: {
-
+          // Define que caso o parametro passado seja igual ao ID (number) ou ao nome (string), retorne o médico associado.
           [Op.or]: [
             { id: especialidade },
             { especialidade },
@@ -264,11 +285,13 @@ class GetDoctorController {
 
         },
       });
+      // Se o resultado da busca no banco de dados pela especialidade não encontrar nenhum registro, retorna erro 404 com a mensagem descrita abaixo
       if (result == '') {
         return res.status(404).json({
           message: 'Especialidade não encontrada',
         });
       }
+      // Se achar a especialidade passada como parametro mas não houver nenhum médico associado a ela, retorna erro 400 com a mensagem descrita abaixo
       if (result[0].Doctors.length == 0) {
         return res.status(400).json({
           message: 'Não existe nenhum médico com essa especialidade em nossa base',
