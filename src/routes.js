@@ -7,6 +7,13 @@ import PutDoctorController from './app/controller/PutDoctorController';
 
 const routes = new Router();
 
+// Default Routes
+routes.get('/', (req, res) => {
+  res.status(200).json({
+    message: 'Acesse https://documenter.getpostman.com/view/16508397/Tzm2Kdss para acompanhar a documentação da API',
+  });
+});
+
 // POST Routes
 routes.post('/adiante-api/v1/medicos', PostDoctorController.store);
 routes.post('/adiante-api/v1/medicos/reativar/:crm', PostDoctorController.reactivateDoctor);
