@@ -60,7 +60,7 @@ Construída no estilo RESTful utilizando Node.js, MySQL e outras dependências.\
 ## Getting Started
 
 Para utilizar a aplicação, você deve seguir os passos descritos abaixo.\
-O banco de dados está hospedado na AWS e a aplicação containerizada com Docker\
+O banco de dados está hospedado na AWS e a aplicação containerizada com Docker.\
 Caso você não deseje utilizar docker, pode clonar o repositório e rodar localmente a aplicação seguindo os passos abaixo. 
 
 ### Prerequisites locally
@@ -86,7 +86,7 @@ Caso você não deseje utilizar docker, pode clonar o repositório e rodar local
    npm install
    ```
 4. Colocar o banco de dados em estado inicial
-   ```sh
+   ```JS
    npx sequelize db:migrate:undo:all
    ```
 5. Iniciar as migrations
@@ -140,19 +140,15 @@ Em conjunto com as especializações, será criado também o registro de um méd
 
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
+Distribuído sob a licença MIT.
 
 ## Dev notes
 
 #### Docker Container
 
-The first idea was building the whole application into a docker-compose file to run in every possible scenario. \
-I had some problems with the integration between the two images (database and application), so I prefered to just run an docker local image of the database. \
-Future releases should be in a docker-friendly development.
+A ideia e implementação inicial era para realizar a conteinerização de todo o ambiente (aplicação e banco de dados), mas utilizando a AWS para hospedar o banco de dados, não vi necessidade de colocar o database localmente com docker.
 
 
 #### Test unit
-Same as docker, the original idea was testing the whole application and build it in a TDD-like pattern. \
-Actually there is a tests/app.test.js and a script to run it, but isnt running in production. \
-I'm curently improving myself and learning TDD to deliver it in future releases
+Os testes foram realizados utilizando a própria interface do Postman e executando via linha de comando com a bibliotca newman, como citado anteriormente.
+Diversos casos de testes foram criados (tanto para sucesso quanto para erros), e você pode testa-los usando o comando ```npx newman run postman_test_cases.json``` após instalar as dependências
